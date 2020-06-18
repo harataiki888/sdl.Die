@@ -9,6 +9,10 @@ import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -18,11 +22,24 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     private Cube cube;
     private Pyramid pyramid;
 
+    private double systemtime1;
+    private DecimalFormat decimalFormat1;
+    private Timer timer1;
+    private int countX;
+    private int countY;
+    private int countZ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
+
+        timer1 = new Timer();
+        decimalFormat1 = new DecimalFormat("0.000");
+        countX=0;
+        countY=0;
+        countZ=0;
 
         glView = findViewById(R.id.gl_view);
         SeekBar seekBarX = findViewById(R.id.seekbar_x);
@@ -34,6 +51,29 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         seekBarX.setOnSeekBarChangeListener(this);
         seekBarY.setOnSeekBarChangeListener(this);
         seekBarZ.setOnSeekBarChangeListener(this);
+
+        //Auto-rotate via SeekBar
+        timer1.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                systemtime1 = System.currentTimeMillis();
+
+                SeekBar seekBarX = findViewById(R.id.seekbar_x);
+                SeekBar seekBarY = findViewById(R.id.seekbar_y);
+                SeekBar seekBarZ = findViewById(R.id.seekbar_z);
+                seekBarX.setProgress(countX);
+                seekBarY.setProgress(countY);
+                seekBarZ.setProgress(countZ);
+
+                countX += 1;
+                countY += 2;
+                countZ += 3;
+                if (countX==360){countX=0;}
+                if (countY==360){countY=0;}
+                if (countZ==360){countZ=0;}
+            }
+        }, 50, 50);
+
 
         renderer = new SimpleRenderer();
         cube = new Cube();
